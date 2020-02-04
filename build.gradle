@@ -1,0 +1,63 @@
+plugins {
+    id 'java-library'
+    id 'java'
+}
+
+version = '1.0.0'
+jar.archiveBaseName = 'Calil'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    google()
+    jcenter()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'commons-collections:commons-collections:3.2.2'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.10'
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.10.1'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
+	implementation 'org.json:json:20190722'
+}
+
+sourceSets {
+    main.resources {
+        srcDir 'src/main/java'
+    }
+}
+
+clean {
+    file("app").deleteDir()
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'com.xrea.s8.otokiti.calil.App')
+        attributes('Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '))
+    }
+}
+
+task copyDependencies() {
+    doLast {
+        copy {
+            from configurations.runtimeClasspath
+            into 'app'
+        }
+        System.out.println(jar.archiveBaseName.get());
+        copy {
+            from "build/libs/" + jar.archiveBaseName.get() + "-" + version + ".jar"
+            into 'app'
+            rename { String fileName -> jar.archiveBaseName.get() + ".jar" }
+        }
+    }
+}
+
+defaultTasks 'clean' , 'build' , 'copyDependencies'
